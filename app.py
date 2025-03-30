@@ -4,6 +4,7 @@ import string
 import datetime
 import re
 import os
+import sys
 from functools import wraps
 
 import config
@@ -11,6 +12,12 @@ from models import users_db, transactions_db, create_user_session, get_user_data
 from utils import humanize_text, detect_ai_content, register_user_to_backend, generate_transaction_id, format_date
 from templates import html_templates
 from api_client import api_client
+
+# Debug print statements for deployment troubleshooting
+print("Python version:", sys.version)
+print("Current directory:", os.getcwd())
+print("Directory contents:", os.listdir('.'))
+print("Environment variables:", {k: v for k, v in os.environ.items() if not k.startswith('_')})
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', config.SECRET_KEY)
@@ -930,6 +937,24 @@ def serve_js():
     """
     return js, 200, {'Content-Type': 'text/javascript'}
 
+# Debug route
+@app.route('/debug')
+def debug():
+    """Debug route to check environment"""
+    debug_info = {
+        "Python version": sys.version,
+        "Current directory": os.getcwd(),
+        "Directory contents": os.listdir('.'),
+        "Environment variables": {k: v for k, v in os.environ.items() if not k.startswith('_')},
+        "Templates": list(html_templates.keys()),
+        "Config": {
+            "APP_NAME": config.APP_NAME,
+            "API_URL": config.API_URL,
+            "DEBUG": config.DEBUG,
+            "PORT": config.PORT
+        }
+    }
+    return jsonify(debug_info)
 
 if __name__ == '__main__':
     # Create a demo user for testing
